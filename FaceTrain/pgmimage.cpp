@@ -286,12 +286,12 @@ void imgl_load_images_from_textfile(IMAGELIST *il,char *filename)
   while (fgets(buf, 1999, fp) != NULL) {
 
     imgl_munge_name(buf);
-    printf("Loading '%s'...", buf);  fflush(stdout);
+    //printf("Loading '%s'...", buf);  fflush(stdout);
     if ((iimg = img_open(buf)) == 0) {
       printf("Couldn't open '%s'\n", buf);
     } else {
       imgl_add(il, iimg);
-      printf("done\n");
+      //printf("done\n");
     }
     fflush(stdout);
   }

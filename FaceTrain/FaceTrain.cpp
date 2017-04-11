@@ -33,8 +33,6 @@ CWinApp theApp;
 #include "pgmimage.h"
 #include "backprop.h"
 
-#include <iostream>
-
 extern char *strcpy();
 extern void exit();
 void printusage(char *prog);
@@ -67,7 +65,8 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 			make a net with:
 			imgsize inputs, 4 hiden units, and 1 output unit
 			*/
-			net = bpnn_create(imgsize, /*25: original number 4*/ 3, 1);
+            // ´´½¨ÍøÂç(³ß´ç)
+			net = bpnn_create(imgsize, /*25: original number 4*/ 12, 4);//3£¬1
 		} else {
 			printf("Need some images to train on, use -t\n");
 			return;
@@ -81,11 +80,12 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 	}
 
 	/*** Print out performance before any epochs have been completed. ***/
-	printf("0 0.0 ");
+	printf("0\t0.0\t");
 	performance_on_imagelist(net, trainlist, 0);
 	performance_on_imagelist(net, test1list, 0);
 	performance_on_imagelist(net, test2list, 0);
 	printf("\n");  fflush(stdout);
+    
 	if (list_errors) {
 		printf("\nFailed to classify the following images from the training set:\n");
 		performance_on_imagelist(net, trainlist, 1);
@@ -95,11 +95,11 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 		performance_on_imagelist(net, test2list, 1);
 	}
 
+
 	/************** Train it *****************************/
 	for (epoch = 1; epoch <= epochs; epoch++) {
 
-		printf("%d ", epoch);  fflush(stdout);
-
+		printf("%d\t", epoch);  fflush(stdout);
 		sumerr = 0.0;
 		for (i = 0; i < train_n; i++) {
 
@@ -114,7 +114,8 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 
 			sumerr += (out_err + hid_err);
 		}
-		printf("%g ", sumerr);
+		printf("%g\t", sumerr);
+        
 
 		/*** Evaluate performance on train, test, test2, and print perf ***/
 		performance_on_imagelist(net, trainlist, 0);
@@ -137,36 +138,61 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 
 int evaluate_performance(BPNN *net,double *err)
 {
-	double delta;
+	double delta = 0;
 
-	delta = net->target[1] - net->output_units[1];
+    int m1 = 0;
+    int m2 = 0;
+    double t1 = 0;
+    double t2 = 0;
 
-	*err = (0.5 * delta * delta);
+    for (int i = 1; i <= 4; i++) {
+        if (t1 < net->target[i]) {
+            t1 = net->target[i];
+            m1 = i;
+        }
+        if (t2 < net->output_units[i]) {
+            t2 = net->output_units[i];
+            m2 = i;
+        }
+        delta += abs(net->target[i] - net->output_units[i]);
+    }
+    delta /= 4;
+    //delta = abs(net->target[m1] - net->output_units[m1]);
 
-	/*** If the target unit is on... ***/
-	if (net->target[1] > 0.5) {
+    *err = 0.5 * delta * delta;
 
-		/*** If the output unit is on, then we correctly recognized me! ***/
-		if (net->output_units[1] > 0.5) {
-			return (1);
+    return m1 == m2 ? 1 : 0;
 
-			/*** otherwise, we didn't think it was me... ***/
-		} else {
-			return (0);
-		}
+    // old below
 
-		/*** Else, the target unit is off... ***/
-	} else {
+	//delta = net->target[1] - net->output_units[1];
 
-		/*** If the output unit is on, then we mistakenly thought it was me ***/
-		if (net->output_units[1] > 0.5) {
-			return (0);
+	//*err = (0.5 * delta * delta);
 
-			/*** else, we correctly realized that it wasn't me ***/
-		} else {
-			return (1);
-		}
-	}
+	///*** If the target unit is on... ***/
+	//if (net->target[1] > 0.5) {
+
+	//	/*** If the output unit is on, then we correctly recognized me! ***/
+	//	if (net->output_units[1] > 0.5) {
+	//		return (1);
+
+	//		/*** otherwise, we didn't think it was me... ***/
+	//	} else {
+	//		return (0);
+	//	}
+
+	//	/*** Else, the target unit is off... ***/
+	//} else {
+
+	//	/*** If the output unit is on, then we mistakenly thought it was me ***/
+	//	if (net->output_units[1] > 0.5) {
+	//		return (0);
+
+	//		/*** else, we correctly realized that it wasn't me ***/
+	//	} else {
+	//		return (1);
+	//	}
+	//}
 
 }
 
@@ -212,15 +238,17 @@ void performance_on_imagelist(BPNN *net,IMAGELIST *il,int list_errors)
 
 		err = err / (double) n;
 
-		if (!list_errors)
-			/* bthom==================================
-			this line prints part of the ouput line
-			discussed in section 3.1.2 of homework
-			*/
-			printf("%g %g ", ((double) correct / (double) n) * 100.0, err);
+        if (!list_errors) {
+            /* bthom==================================
+            this line prints part of the ouput line
+            discussed in section 3.1.2 of homework
+            */
+            printf("%g\t%g\t", ((double)correct / (double)n) * 100.0, err);
+        }
 	} else {
-		if (!list_errors)
-			printf("0.0 0.0 ");
+        if (!list_errors) {
+            printf("0.0\t0.0\t");
+        }
 	}
 }
 
@@ -258,7 +286,7 @@ int _tmain(int argc, TCHAR* argv[], TCHAR* envp[])
 	IMAGELIST *trainlist, *test1list, *test2list;
 	int ind, epochs, seed, savedelta, list_errors;
 
-	seed = 102194;   /*** today's date seemed like a good default ***/
+	seed = 170411;   /*** today's date seemed like a good default ***/
 	epochs = 100;
 	savedelta = 100;
 	list_errors = 0;

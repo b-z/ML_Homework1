@@ -344,7 +344,7 @@ void bpnn_save(BPNN *net,char *filename)
   }
 
   n1 = net->input_n;  n2 = net->hidden_n;  n3 = net->output_n;
-  printf("Saving %dx%dx%d network to '%s'\n", n1, n2, n3, filename);
+  //printf("Saving %dx%dx%d network to '%s'\n", n1, n2, n3, filename);
   fflush(stdout);
 
   fwrite( (char *) &n1, sizeof(int), 1, fd);

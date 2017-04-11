@@ -56,11 +56,20 @@ void load_target(IMAGE *img,BPNN *net)
   //} else {
   //  net->target[1] = TARGET_LOW;   /* not me, set it to LOW */
   //}
-  if (!strcmp(expression, "sunglasses")) {
+  for (int i = 1; i <= 4; i++) {
+      net->target[i] = TARGET_LOW;   /* not me, set it to LOW */
+  }
+  if (!strcmp(expression, "angry")) {
       net->target[1] = TARGET_HIGH;  /* it's me, set target to HIGH */
   }
-  else {
-      net->target[1] = TARGET_LOW;   /* not me, set it to LOW */
+  if (!strcmp(expression, "happy")) {
+      net->target[2] = TARGET_HIGH;  /* it's me, set target to HIGH */
+  }
+  if (!strcmp(expression, "neutral")) {
+      net->target[3] = TARGET_HIGH;  /* it's me, set target to HIGH */
+  }
+  if (!strcmp(expression, "sad")) {
+      net->target[4] = TARGET_HIGH;  /* it's me, set target to HIGH */
   }
 }
 
@@ -83,6 +92,7 @@ void load_input_with_image(IMAGE *img,BPNN *net)
     exit (-1);
   }
 
+  // 在这里修改输入单元
   units = net->input_units;
   k = 1;
   for (i = 0; i < nr; i++) {
