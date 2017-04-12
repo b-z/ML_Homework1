@@ -12,6 +12,8 @@
 #include "backprop.h"
 #include <math.h>
 
+
+
 #define ABS(x)          (((x) > 0.0) ? (x) : (-(x)))
 
 #define fastcopy(to,from,len)\

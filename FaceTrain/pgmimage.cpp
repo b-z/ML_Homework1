@@ -96,6 +96,7 @@ int img_getpixel(IMAGE *img,int r, int c)
   int nc;
 
   nc = img->cols;
+  if (r >= img->rows || c >= img->cols || r < 0 || c < 0) return 0;// ·µ»ØºÚÉ«
   return (img->data[(r * nc) + c]);
 }
 

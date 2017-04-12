@@ -13,6 +13,16 @@
 
 #define BIGRND 0x7fffffff
 
+#define TARGET_glasses 0
+#define TARGET_emotion 1
+#define TARGET_head 2
+#define TARGET_who 3
+
+#define TARGET 3
+
+//#define NAIVE
+
+
 /*** The neural network data structure.  The network is assumed to
      be a fully-connected feedforward three-layer network.
      Unit 0 in each layer of units is the threshold unit; this means

@@ -66,7 +66,12 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 			imgsize inputs, 4 hiden units, and 1 output unit
 			*/
             // ´´½¨ÍøÂç(³ß´ç)
-			net = bpnn_create(imgsize, /*25: original number 4*/ 12, 4);//3£¬1
+            int number[] = { 1, 4, 4, 20 };
+#ifndef NAIVE
+            net = bpnn_create(7*7*8, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
+#else
+            net = bpnn_create(imgsize, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
+#endif
 		} else {
 			printf("Need some images to train on, use -t\n");
 			return;
@@ -99,7 +104,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 	/************** Train it *****************************/
 	for (epoch = 1; epoch <= epochs; epoch++) {
 
-		printf("%d\t", epoch);  fflush(stdout);
+		printf("%.2d\t", epoch);  fflush(stdout);
 		sumerr = 0.0;
 		for (i = 0; i < train_n; i++) {
 
@@ -114,7 +119,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 
 			sumerr += (out_err + hid_err);
 		}
-		printf("%g\t", sumerr);
+		printf("%.2g\t", sumerr);
         
 
 		/*** Evaluate performance on train, test, test2, and print perf ***/
@@ -138,14 +143,18 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 
 int evaluate_performance(BPNN *net,double *err)
 {
+#if TARGET != TARGET_glasses
 	double delta = 0;
 
     int m1 = 0;
     int m2 = 0;
     double t1 = 0;
     double t2 = 0;
-
+#if TARGET != TARGET_who
     for (int i = 1; i <= 4; i++) {
+#else 
+    for (int i = 1; i <= 20; i++) {
+#endif
         if (t1 < net->target[i]) {
             t1 = net->target[i];
             m1 = i;
@@ -156,44 +165,43 @@ int evaluate_performance(BPNN *net,double *err)
         }
         delta += abs(net->target[i] - net->output_units[i]);
     }
-    delta /= 4;
     //delta = abs(net->target[m1] - net->output_units[m1]);
 
     *err = 0.5 * delta * delta;
 
     return m1 == m2 ? 1 : 0;
-
+#else
     // old below
 
-	//delta = net->target[1] - net->output_units[1];
+	delta = net->target[1] - net->output_units[1];
 
-	//*err = (0.5 * delta * delta);
+	*err = (0.5 * delta * delta);
 
-	///*** If the target unit is on... ***/
-	//if (net->target[1] > 0.5) {
+	/*** If the target unit is on... ***/
+	if (net->target[1] > 0.5) {
 
-	//	/*** If the output unit is on, then we correctly recognized me! ***/
-	//	if (net->output_units[1] > 0.5) {
-	//		return (1);
+		/*** If the output unit is on, then we correctly recognized me! ***/
+		if (net->output_units[1] > 0.5) {
+			return (1);
 
-	//		/*** otherwise, we didn't think it was me... ***/
-	//	} else {
-	//		return (0);
-	//	}
+			/*** otherwise, we didn't think it was me... ***/
+		} else {
+			return (0);
+		}
 
-	//	/*** Else, the target unit is off... ***/
-	//} else {
+		/*** Else, the target unit is off... ***/
+	} else {
 
-	//	/*** If the output unit is on, then we mistakenly thought it was me ***/
-	//	if (net->output_units[1] > 0.5) {
-	//		return (0);
+		/*** If the output unit is on, then we mistakenly thought it was me ***/
+		if (net->output_units[1] > 0.5) {
+			return (0);
 
-	//		/*** else, we correctly realized that it wasn't me ***/
-	//	} else {
-	//		return (1);
-	//	}
-	//}
-
+			/*** else, we correctly realized that it wasn't me ***/
+		} else {
+			return (1);
+		}
+	}
+#endif
 }
 
 
@@ -243,7 +251,7 @@ void performance_on_imagelist(BPNN *net,IMAGELIST *il,int list_errors)
             this line prints part of the ouput line
             discussed in section 3.1.2 of homework
             */
-            printf("%g\t%g\t", ((double)correct / (double)n) * 100.0, err);
+            printf("%.4g\t%.4g\t", ((double)correct / (double)n) * 100.0, err);
         }
 	} else {
         if (!list_errors) {
