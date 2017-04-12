@@ -19,6 +19,7 @@ extern void exit();
 #define TARGET_HIGH 0.9
 #define TARGET_LOW 0.1
 
+void complexFeature(IMAGE *img, double dst[], int x1, int x2, int y1, int y2);
 
 /*** This is the target output encoding for a network with one output unit.
      It scans the image name, and if it's an image of me (js) then
@@ -138,6 +139,8 @@ void load_input_with_image(IMAGE *img,BPNN *net)
     }
   }
 #else
+
+#ifndef COMPLEX_METHOD
   
   int img_size = 128;
   int size = 32;
@@ -166,49 +169,83 @@ void load_input_with_image(IMAGE *img,BPNN *net)
       }
       x0 += size / 2;
   }
-  
-  /**
-  int e[8][2] = { { 0, -2 },{ 1, -1 },{ 2, 0 },{ 1, 1 },{ 0, 2 },{ -1, 1 },{ -2, 0 },{ -1, -1 } };
-  int x1 = 32;
-  int x2 = 96;
-  int y1 = 72;
-  int y2 = 88;
-  int x0 = x1;
-  int y0 = y1;
+#else
+
+  int img_size = 128;
+  int size = 32;
+  int n = img_size / (size / 2) - 1;
   int count = 1;
-  int size = 16;
-  int n = (x2 - x1) / (size / 2) - 1;//7
+  int e[8][2] = { { 0, -2 },{ 1, -1 },{ 2, 0 },{ 1, 1 },{ 0, 2 },{ -1, 1 },{ -2, 0 },{ -1, -1 } };
+  int x0 = 0, y0 = 0;
   for (int i = 0; i < n; i++) {
-      int sum[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-      for (int p = x0 + 2; p < x0 + size - 2; p++) {
-          for (int q = y0 + 2; q < y0 + size - 2; q++) {
-              int d = img_getpixel(img, p, q);
-              for (int k = 0; k < 8; k++) {
-                  sum[k] += d > img_getpixel(img, p + e[k][0], q + e[k][1]) ? 1 : 0;
+      y0 = 0;
+      for (int j = 0; j < n; j++) {
+          int sum[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+          for (int p = x0 + 2; p < x0 + size - 2; p++) {
+              for (int q = y0 + 2; q < y0 + size - 2; q++) {
+                  int d = img_getpixel(img, p, q);
+                  for (int k = 0; k < 8; k++) {
+                      sum[k] += d > img_getpixel(img, p + e[k][0], q + e[k][1]) ? 1 : 0;
+                  }
               }
           }
-      }
-      for (int k = 0; k < 8; k++) {
-          units[count] = double(sum[k]) / ((size - 2) * (size - 2));
-          count++;
+          for (int k = 0; k < 8; k++) {
+              units[count] = double(sum[k]) / ((size - 2) * (size - 2));
+              count++;
+          }
+
+          double features[] = { 0, 0, 0, 0, 0, 0 };
+          complexFeature(img, features, x0, x0 + size, y0, y0 + size);
+
+          for (int k = 0; k < 6; k++) {
+              units[count] = features[k] / 255.0;
+              count++;
+          }
+
+          y0 += size / 2;
+
       }
       x0 += size / 2;
-  }*/
-  
-  /**
-  int x1 = 32;
-  int x2 = 96;
-  int y1 = 72;
-  int y2 = 88;
-  // 64 * 16
-  int count = 1;
-  for (int i = x1; i < x2; i++) {
-      for (int j = y1; j < y2; j++) {
-          int d = img_getpixel(img, i, j);
-          units[count] = double(d) / 255;
-          count++;
-      }
   }
-  */
 #endif
+#endif
+}
+
+
+void complexFeature(IMAGE *img, double dst[], int x1, int x2, int y1, int y2) {
+    double mu = 0, sigma = 0, delta = 0, delta_ = 0, gamma = 0, gamma_ = 0;
+    int N = (x2 - x1) * (y2 - y1);
+    for (int i = x1; i < x2; i++) {
+        for (int j = y1; j < y2; j++) {
+            double X = img_getpixel(img, i, j);
+            mu += X;
+        }
+    }
+    mu /= N;
+    for (int i = x1; i < x2; i++) {
+        for (int j = y1; j < y2; j++) {
+            double X = img_getpixel(img, i, j);
+            
+            sigma += (X - mu) * (X - mu);
+            if (j < y2 - 2) {
+                double X1 = img_getpixel(img, i, j + 1);
+                double X2 = img_getpixel(img, i, j + 2);
+                delta += abs(X1 - X);
+                gamma += abs(X2 - X);
+            }
+        }
+    }
+    sigma = sqrt(sigma);
+    sigma /= N - 1;
+    delta /= (x2 - x1) * (y2 - y1 - 2);
+    gamma /= (x2 - x1) * (y2 - y1 - 2);
+    delta_ = delta / (sigma == 0 ? 0.00001 : sigma);
+    gamma_ = gamma / (sigma == 0 ? 0.00001 : sigma);
+    //cout << delta_ << "\t" << gamma_ << endl;
+    dst[0] = mu;
+    dst[1] = sigma;
+    dst[2] = delta;
+    dst[3] = 0;// delta_;
+    dst[4] = gamma;
+    dst[5] = 0;// gamma_;
 }

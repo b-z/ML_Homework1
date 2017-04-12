@@ -21,6 +21,7 @@
 #define TARGET 3
 
 //#define NAIVE
+#define COMPLEX_METHOD
 
 
 /*** The neural network data structure.  The network is assumed to

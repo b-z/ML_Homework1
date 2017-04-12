@@ -68,7 +68,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
             // ´´½¨ÍøÂç(³ß´ç)
             int number[] = { 1, 4, 4, 20 };
 #ifndef NAIVE
-            net = bpnn_create(7*7*8, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
+            net = bpnn_create(7*7*14, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
 #else
             net = bpnn_create(imgsize, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
 #endif
@@ -115,7 +115,10 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 			load_target(trainlist->list[i], net);
 
 			/** Run backprop, learning rate 0.3, momentum 0.3 **/
-			bpnn_train(net, 0.3, 0.3, &out_err, &hid_err);
+            double lr = epoch > 60 ? 0.03 : (epoch > 30 ? 0.1 : 0.3);
+            double mo = epoch > 60 ? 0.03 : (epoch > 30 ? 0.1 : 0.3);
+            //bpnn_train(net, lr, mo, &out_err, &hid_err);
+            bpnn_train(net, 0.3, 0.3, &out_err, &hid_err);
 
 			sumerr += (out_err + hid_err);
 		}
@@ -143,8 +146,8 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 
 int evaluate_performance(BPNN *net,double *err)
 {
+    double delta = 0;
 #if TARGET != TARGET_glasses
-	double delta = 0;
 
     int m1 = 0;
     int m2 = 0;
