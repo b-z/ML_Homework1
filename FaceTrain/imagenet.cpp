@@ -146,7 +146,7 @@ void load_input_with_image(IMAGE *img,BPNN *net)
   int size = 32;
   int n = img_size / (size / 2) - 1;
   int count = 1;
-  int e[8][2] = { {0, -2}, {1, -1}, {2, 0}, {1, 1}, {0, 2}, {-1, 1}, {-2, 0}, {-1, -1} };
+  int e[8][2] = { { 0, -2 },{ 2, -2 },{ 2, 0 },{ 2, 2 },{ 0, 2 },{ -2, 2 },{ -2, 0 },{ -2, -2 } };
   int x0 = 0, y0 = 0;
   for (int i = 0; i < n; i++) {
       y0 = 0;
@@ -172,10 +172,10 @@ void load_input_with_image(IMAGE *img,BPNN *net)
 #else
 
   int img_size = 128;
-  int size = 32;
+  int size = 16;
   int n = img_size / (size / 2) - 1;
   int count = 1;
-  int e[8][2] = { { 0, -2 },{ 1, -1 },{ 2, 0 },{ 1, 1 },{ 0, 2 },{ -1, 1 },{ -2, 0 },{ -1, -1 } };
+  int e[8][2] = { { 0, -2 },{ 2, -2 },{ 2, 0 },{ 2, 2 },{ 0, 2 },{ -2, 2 },{ -2, 0 },{ -2, -2 } };
   int x0 = 0, y0 = 0;
   for (int i = 0; i < n; i++) {
       y0 = 0;

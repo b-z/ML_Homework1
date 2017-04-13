@@ -68,7 +68,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
             // ´´½¨ÍøÂç(³ß´ç)
             int number[] = { 1, 4, 4, 20 };
 #ifndef NAIVE
-            net = bpnn_create(7*7*14, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
+            net = bpnn_create(31*31*14, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
 #else
             net = bpnn_create(imgsize, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
 #endif
@@ -104,7 +104,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 	/************** Train it *****************************/
 	for (epoch = 1; epoch <= epochs; epoch++) {
 
-		printf("%.2d\t", epoch);  fflush(stdout);
+		printf("%d\t", epoch);  fflush(stdout);
 		sumerr = 0.0;
 		for (i = 0; i < train_n; i++) {
 
@@ -122,7 +122,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
 
 			sumerr += (out_err + hid_err);
 		}
-		printf("%.2g\t", sumerr);
+		printf("%g\t", sumerr);
         
 
 		/*** Evaluate performance on train, test, test2, and print perf ***/

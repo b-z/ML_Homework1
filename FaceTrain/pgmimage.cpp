@@ -97,7 +97,11 @@ int img_getpixel(IMAGE *img,int r, int c)
 
   nc = img->cols;
   if (r >= img->rows || c >= img->cols || r < 0 || c < 0) return 0;// ·µ»ØºÚÉ«
-  return (img->data[(r * nc) + c]);
+  double val = (img->data[(r * nc) + c]);
+  /*if (val < 128) val = 0;
+  else if (val > 198) val = 255;
+  else val = (val - 128) * (255.0 / 70);*/
+  return val;
 }
 
 
