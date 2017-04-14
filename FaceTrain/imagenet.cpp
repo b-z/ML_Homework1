@@ -172,7 +172,7 @@ void load_input_with_image(IMAGE *img,BPNN *net)
 #else
 
   int img_size = 128;
-  int size = 16;
+  int size = 32;
   int n = img_size / (size / 2) - 1;
   int count = 1;
   int e[8][2] = { { 0, -2 },{ 2, -2 },{ 2, 0 },{ 2, 2 },{ 0, 2 },{ -2, 2 },{ -2, 0 },{ -2, -2 } };

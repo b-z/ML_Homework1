@@ -18,7 +18,7 @@
 #define TARGET_head 2
 #define TARGET_who 3
 
-#define TARGET 1
+#define TARGET 2
 
 //#define NAIVE
 #define COMPLEX_METHOD

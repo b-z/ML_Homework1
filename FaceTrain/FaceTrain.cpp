@@ -68,7 +68,7 @@ void backprop_face(IMAGELIST *trainlist, IMAGELIST *test1list, IMAGELIST *test2l
             // ´´½¨ÍøÂç(³ß´ç)
             int number[] = { 1, 4, 4, 20 };
 #ifndef NAIVE
-            net = bpnn_create(31*31*14, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
+            net = bpnn_create(7*7*14, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
 #else
             net = bpnn_create(imgsize, /*25: original number 4*/ number[TARGET]*3, number[TARGET]);//3£¬1
 #endif
