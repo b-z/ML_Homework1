@@ -98,8 +98,9 @@ void load_target(IMAGE *img,BPNN *net)
       net->target[i] = TARGET_LOW;   /* not me, set it to LOW */
   }
   string strs[] = { "", "an2i", "at33", "boland", "bpm", "ch4f", "cheyer", "choon", "danieln", "glickman", "karyadi", "kawamura", "kk49", "megak", "mitchell", "night", "phoebe", "saavik", "steffi", "sz24", "tammo" };
+  string id = userid;
   for (int i = 1; i <= 20; i++) {
-      if (!strcmp(head, strs[i].c_str())) {
+      if (id.find(strs[i]) >= 0 && id.find(strs[i]) < 1000) {
         net->target[i] = TARGET_HIGH;  /* it's me, set target to HIGH */
       }
   }
